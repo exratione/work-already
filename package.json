@@ -1,6 +1,6 @@
 {
   "name" : "work-already",
-  "description": "Tools to create web tests for Socket.IO applications with session integration.",
+  "description": "Tools to create web tests for Express and Socket.IO applications with session integration.",
   "keywords": ["test", "websocket", "socket.io", "session"],
   "version": "0.0.1",
   "homepage": "https://github.com/exratione/work-already",
@@ -9,11 +9,19 @@
     "node": ">= 0.8"
   },
   "dependencies": {
-    "socket.io-client": "0.9.x"
+    "log": "*",
+    "socket.io-client": "0.9.x",
+    "request": "*"
   },
   "devDependencies": {
-    "express": "*",
-    "socket.io": "0.9.x"
+    "cluster-master": "*",
+    "connect": "*",
+    "express": "3.x.x",
+    "socket.io": "0.9.x",
+    "vows": "*"
+  },
+  "scripts": {
+    "test": "vows test/vows/* --isolate --spec"
   },
   "main": "./index",
   "repository" : {
