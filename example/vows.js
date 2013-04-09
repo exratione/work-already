@@ -71,8 +71,10 @@ suite.addBatch({
         timeout: 500
       }, this.callback);
     },
-    "event emitted": function (error, eventData) {
+    "event emitted": function (error, socketEvent) {
       assert.isNull(error);
+      // The socketEvent is stashed in the client as well as being passed
+      // to this function.
       assert.isObject(client.socketEvent);
       assert.strictEqual(client.socketEvent.namespace, client.config.sockets.defaultNamespace);
       assert.strictEqual(client.socketEvent.eventType, "responseOnConnect");
