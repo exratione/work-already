@@ -48,6 +48,9 @@ exports.config = {
       host: "localhost",
       port: 10080,
       protocol: "http"
+    },
+    sockets: {
+      defaultNamespace: ""
     }
   }
 };
@@ -55,16 +58,13 @@ exports.config = {
 /**
  * Launch a minimal test Express.js/Socket.IO application.
  *
- * The configuration options are far more than is used here, but make this code
- * a more helpful starting point for your own test code.
- *
  * @return {object}
  *   A object containing the app, server, and socket.io instances.
  */
 exports.launchApp = function () {
   // Set up a minimal Express application.
   var app = express();
-  var cookieParser = express.cookieParser(exports.config.expressSession.cookieSecret);
+  var cookieParser = express.cookieParser(exports.config.expressSession.secret);
   app.use(express.bodyParser());
   app.use(cookieParser);
   app.use(express.session(exports.config.expressSession));
@@ -95,8 +95,10 @@ exports.launchApp = function () {
           callback("COOKIE_PARSE_ERROR", false);
           return;
         }
+
         var sessionId = data.signedCookies[exports.config.expressSession.key];
         exports.config.expressSession.store.get(sessionId, function (error, session) {
+
           // Add the sessionId. This will show up in
           // socket.handshake.sessionId.
           //
@@ -129,7 +131,50 @@ exports.launchApp = function () {
 };
 
 /**
- * Obtain a Vows test suite.
+ * Add necessary routes for testing.
+ *
+ * @param {object} app
+ *   An Express.js application.
+ */
+exports.setupExpressRoutes = function (app) {
+  app.post("/post", function (req, res, next) {
+    res.redirect("/index.html");
+  });
+  app.all("*", function (req, res, next) {
+    res.send(404, "404 Response");
+  });
+};
+
+/**
+ * Set up the server Socket.IO behavior for testing.
+ *
+ * @param {object} socketFactory
+ *   The Socket.IO instance.
+ * @param {array} namespaces
+ *   Namespace strings.
+ */
+exports.setupSocketResponses = function (socketFactory, namespaces) {
+  namespaces = namespaces || [exports.config.workAlreadyClient.sockets.defaultNamespace];
+  namespaces.forEach(function (namespace, index, array) {
+    socketFactory.of(namespace).on("connection", function (socket) {
+      console.log("Connection: " + socket.id);
+      // Immediately send down a response.
+      setTimeout(function () {
+        socket.emit("responseOnConnect", {
+          data: "responseOnConnect"
+        });
+      }, 100);
+
+      // Set up an echo.
+      socket.on("test", function (data) {
+        socket.emit("responseOnTest", data);
+      });
+    });
+  });
+};
+
+/**
+ * Obtain a Vows test suite which launches and sets up a server.
  *
  * @return {object}
  *   A Vows test suite that launches a server as the first batch.
@@ -137,14 +182,17 @@ exports.launchApp = function () {
 exports.serverTestSuite = function (name) {
   var suite = vows.describe(name);
   suite.addBatch({
-    "Lauch test server": {
+    "Launch test server": {
       topic: function () {
-        return exports.launchApp();
+        var data = exports.launchApp();
+        exports.setupExpressRoutes(data.app);
+        exports.setupSocketResponses(data.socketFactory);
+        return data;
       },
       "launch complete": function (data) {
         suite.app = data.app;
         suite.server = data.server;
-        suite.socketFactor = data.socketFactory;
+        suite.socketFactory = data.socketFactory;
       }
     }
   });

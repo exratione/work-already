@@ -26,11 +26,16 @@ var config = {
   },
   server: {
     host: "localhost",
-    port: "10080"
+    port: "10080",
+    protocol: "http"
+  },
+  sockets: {
+    defaultNamespace: ""
   }
 };
 
-// The script of actions that each client will take.
+// The script of actions that each client will take. This is a short example
+// script only.
 var script = {
   // All scripts require a name.
   name: "An example script",
@@ -41,26 +46,37 @@ var script = {
   },
   // Action definitions that will be executed in the order provided.
   actions: [
-    // Load the application main page.
+    // 1) Load the application main page.
     "/index.html",
-    // Connect via Socket.IO.
+
+    // 2 Connect via Socket.IO.
     {
-      // Override the default sleep time.
+      // Override the default sleep time - so no delay at all here.
       sleep: false,
       type: "socket",
       // Assuming that we are using cookies rather than query string tokens
-      // to tie the socket authentication to the page authentication.
-      namespace: "/",
+      // to tie the socket authentication to the page authentication - so
+      // no query string appended to the namespace.
+      namespace: "",
+      // Timeout in milliseconds.
+      timeout: 500,
       // Optional socket configuration could go here.
       socketConfig: {}
     },
-    // Emit an event.
+
+    // 3) Load all static content referenced in the page; CSS, JS, images, etc.
+    {
+      type: "getStatic"
+    },
+
+    // 4) Emit an event on the socket.
     {
       type: "emit",
-      namespace: "/",
+      namespace: "",
       args: ["event", { item: "value" }]
     },
-    // Disconnect the socket and unload the page.
+
+    // 5) Disconnect the socket and unload the page.
     {
       type: "unload"
     }
@@ -75,7 +91,7 @@ if (cluster.isMaster) {
   }
 
   var path = require("path");
-  var clusterMaster = require("clusterMaster");
+  var clusterMaster = require("cluster-master");
   clusterMaster({
     exec: path.join(__dirname, "loadTest.js"),
     size: parseInt(process.argv[2], 10),
@@ -84,7 +100,7 @@ if (cluster.isMaster) {
 }
 // Not the master, so start up a load test thread.
 else {
-  config.id = process.env.NODE_UNIQUE_ID;
+  config.id = "client-" + process.env.NODE_UNIQUE_ID;
   var client = new ScriptedClient(config);
   client.runScript(script, function (error) {
     // Done. The cluster master will spawn another process once this is

@@ -9,9 +9,12 @@
     "node": ">= 0.8"
   },
   "dependencies": {
+    "async": "*",
+    "clone": "*",
     "log": "*",
     "socket.io-client": "0.9.x",
-    "request": "*"
+    "request": "*",
+    "xmlhttprequest": "*"
   },
   "devDependencies": {
     "cluster-master": "*",
