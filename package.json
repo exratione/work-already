@@ -2,7 +2,7 @@
   "name" : "work-already",
   "description": "Tools to create web tests for Express and Socket.IO applications with session integration.",
   "keywords": ["test", "websocket", "socket.io", "session"],
-  "version": "0.0.1",
+  "version": "0.0.2",
   "homepage": "https://github.com/exratione/work-already",
   "author": "Reason <reason@exratione.com>",
   "engines": {
