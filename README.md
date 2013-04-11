@@ -181,7 +181,7 @@ See /examples for examples of use, for both simple load tests, and Vows web test
       "Connect via Socket.IO": {
         topic: function () {
           client.action({
-            type: "socket",
+            type: "connect",
             timeout: 500,
             // Optionally, set Socket.IO connection parameters.
             socketConfig: {
@@ -218,3 +218,185 @@ See /examples for examples of use, for both simple load tests, and Vows web test
       }
     });
     exports.suite = suite;
+
+Client Configuration
+--------------------
+
+The client configuration options object passed to the constructor has the
+following parameters:
+
+    {
+      // Optional ID, which defaults to something random. Useful when running
+      // load tests, as it is prepended to log messages.
+      id: "client-3423",
+      // Optional log parameters.
+      log: {
+        level: "debug"
+      },
+      // Required parameters that tell the client which server to connect to.
+      server: {
+        host: "localhost",
+        port: 10080,
+        protocol: "http"
+      },
+      // Optional parameters to provide defaults for socket actions.
+      sockets: {
+        // If namespace is not specified in an action, then this is the namespace
+        // used.
+        defaultNamespace: ""
+        // If timeout is not specified in a socket action, then this value is
+        // used. The timeout is in milliseconds.
+        defaultTimeout: 500
+        // defaultTimeout can be a function, e.g.
+        // defaultTimeout: function () { return 500; }
+      }
+    }
+
+List of Actions
+---------------
+
+The following actions are available.
+
+1) http
+
+    // A general HTTP request action, defaulting to GET. By default the
+    // response is written to client.page.
+    client.action({
+      type: "http",
+      path: "/index.html",
+      method: "GET",
+      // An AJAX request requires client.page to exist, and the response is
+      // stored to client.ajax.
+      ajax: false,
+      // Applied to the query string or POST body, depending on method.
+      params: {
+        name: "value"
+      },
+      // If true, then don't record the response.
+      discardResponse: false
+    }, function (error, page) {});
+
+2) ajax
+
+    // An alias to the http action for AJAX requests. An AJAX request requires
+    // client.page to exist, i.e. that a page request precedes it. The
+    // response to the AJAX request is stored to client.ajax.
+    client.action({
+      type: "ajax",
+      path: "/index.html",
+      method: "GET",
+      // Applied to the query string or POST body, depending on method.
+      params: {
+        name: "value"
+      }
+    }, function (error, ajax) {});
+
+3) get
+
+    // An alias to a GET http action. The response is stored to client.page.
+    client.action({
+      type: "http",
+      path: "/index.html",
+      // Applied to the query string.
+      params: {
+        name: "value"
+      }
+    }, function (error, page) {});
+
+4) post
+
+    // An alias to a POST http action. Redirect to GET is followed and the
+    // response is stored to client.page.
+    client.action({
+      type: "http",
+      path: "/index.html",
+      // Applied to the POST body.
+      params: {
+        name: "value"
+      }
+    }, function (error, page) {});
+
+5) getStatic
+
+    // Load all the static content linked in the the most recently loaded
+    // page, currently stored to client.page. Useful for load testing.
+    client.action({
+      type: "loadStatic",
+      // If true, cache loaded files.
+      cache: true,
+      // Only load URLs with these file extensions.
+      extensions: [".js", ".css", ".jpg", ".png", ".gif"]
+    }, function (error) {});
+
+6) unload
+
+    // Clear stored client.page, client.ajax, and client.socketEvent values.
+    // Disconnect connected sockets.
+    //
+    // This action is called implicitly before a new page is loaded and
+    // stored to client.page.
+    client.action({
+      type: "unload"
+    }, function (error) {});
+
+7) connect
+
+    // Connect a Socket.IO instance. A page request must precede this, and
+    // client.page must exist.
+    client.action({
+      type: "connect",
+      // An optional connection namespace.
+      namespace: "/namespace",
+      // Optional timeout in milliseconds. This can be a function.
+      timeout: 500,
+      // Optional client socket configuration.
+      socketConfig: {
+        "reconnect": true
+      }
+    }, function (error) {});
+
+8) emit
+
+    // Emit on a connected client Socket.IO namespace.
+    client.action({
+      type: "emit",
+      // An optional connection namespace.
+      namespace: "/namespace",
+      // Arguments for the emit() function call.
+      args: ["eventType", data1, data2, ... ]
+    }, function (error) {});
+
+9) awaitEmit
+
+    // Wait for an event from the server to be emitted by a connected
+    // client Socket.IO namespace. Data for the emitted event is stored to
+    // client.socketEvent.
+    client.action({
+      type: "awaitEmit",
+      // An optional connection namespace.
+      namespace: "/namespace",
+      // The event type.
+      eventType: "someEvent",
+      // Optional timeout in milliseconds. This can be a function.
+      timeout: 2000
+    }, function (error, socketEvent) {});
+
+10) connectAndAwaitEmit
+
+    // If the server emits immediately on connection, this is the way to catch
+    // that event. It is stored to client.socketEvent.
+    client.action({
+      type: "connectAndAwaitEmit",
+      // An optional connection namespace.
+      namespace: "/namespace"
+      // The event type.
+      eventType: "someEvent",
+      // Optional timeout in milliseconds. This can be a function.
+      connectTimeout: 500,
+      // Optional timeout in milliseconds. This can be a function.
+      awaitEmitTimeout: 500,
+      // Optional client socket configuration.
+      socketConfig: {
+        "reconnect": true
+      }
+    }, function (error, socketEvent) {});

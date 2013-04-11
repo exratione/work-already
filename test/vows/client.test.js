@@ -32,11 +32,10 @@ suite.addBatch({
 });
 // Socket testing.
 suite.addBatch({
-  "socket": {
+  "connect": {
     topic: function () {
       client.action({
-        type: "socket",
-        timeout: 500
+        type: "connect"
       }, this.callback);
     },
     "socket connected": function (error) {
@@ -46,14 +45,14 @@ suite.addBatch({
     }
   }
 });
-// There is an immediate emitted response on connection.
+// There is a 100-ms delayed response on connection. If it was immediate,
+// we'd miss it. Use connectAndAwaitEmit to catch immediate responses.
 suite.addBatch({
   "awaitEmit": {
     topic: function () {
       client.action({
         type: "awaitEmit",
-        eventType: "responseOnConnect",
-        timeout: 500
+        eventType: "responseOnConnect"
       }, this.callback);
     },
     "event emitted": function (error, eventData) {
@@ -106,6 +105,22 @@ suite.addBatch({
     "page fetched": checkIndexPage
   }
 });
-
+// Test the connect and await thing, and try to catch the immediate response.
+suite.addBatch({
+  "connectAndAwaitEmit": {
+    topic: function () {
+      client.action({
+        type: "connectAndAwaitEmit",
+        eventType: "immediateResponseOnConnect"
+      }, this.callback);
+    },
+    "event emitted": function (error, eventData) {
+      assert.isNull(error);
+      assert.isObject(client.socketEvent);
+      assert.strictEqual(client.socketEvent.namespace, client.config.sockets.defaultNamespace);
+      assert.strictEqual(client.socketEvent.eventType, "immediateResponseOnConnect");
+    }
+  }
+});
 
 exports.suite = suite;

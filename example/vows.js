@@ -45,7 +45,7 @@ suite.addBatch({
   "Connect via Socket.IO": {
     topic: function () {
       client.action({
-        type: "socket",
+        type: "connect",
         timeout: 500,
         // Optionally, set Socket.IO connection parameters.
         socketConfig: {

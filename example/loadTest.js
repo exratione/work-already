@@ -53,7 +53,7 @@ var script = {
     {
       // Override the default sleep time - so no delay at all here.
       sleep: false,
-      type: "socket",
+      type: "connect",
       // Assuming that we are using cookies rather than query string tokens
       // to tie the socket authentication to the page authentication - so
       // no query string appended to the namespace.

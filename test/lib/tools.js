@@ -50,7 +50,10 @@ exports.config = {
       protocol: "http"
     },
     sockets: {
-      defaultNamespace: ""
+      defaultNamespace: "",
+      defaultTimeout: function () {
+        return 500;
+      }
     }
   }
 };
@@ -159,6 +162,11 @@ exports.setupSocketResponses = function (socketFactory, namespaces) {
     socketFactory.of(namespace).on("connection", function (socket) {
       console.log("Connection: " + socket.id);
       // Immediately send down a response.
+      socket.emit("immediateResponseOnConnect", {
+        data: "immediateResponseOnConnect"
+      });
+
+      // And a more delayed response.
       setTimeout(function () {
         socket.emit("responseOnConnect", {
           data: "responseOnConnect"
