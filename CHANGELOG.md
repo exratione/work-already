@@ -1,8 +1,8 @@
 Changelog
 =========
 
-Work in Progress
-----------------
+v0.0.2 - 04/11/2013
+-------------------
 
   * Bugfixes, expanding defaults.
   * Change name of socket action to connect.
