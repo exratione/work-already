@@ -123,4 +123,66 @@ suite.addBatch({
   }
 });
 
+// Tests for confirmNoEmit.
+suite.addBatch({
+  "confirmNoEmit with no event": {
+    topic: function () {
+      client.action({
+        type: "confirmNoEmit",
+        eventType: "responseOnTest"
+      }, this.callback);
+    },
+    "event not emitted": function (error, eventData) {
+      assert.isNull(error);
+      assert.isUndefined(eventData);
+    }
+  }
+});
+suite.addBatch({
+  "confirmNoEmit with event": {
+    topic: function () {
+      client.action({
+        type: "emit",
+        args: ["test"]
+      }, function () {
+        // Ignore this callback.
+      });
+      client.action({
+        type: "confirmNoEmit",
+        eventType: "responseOnTest"
+      }, this.callback);
+    },
+    "event emitted": function (error, eventData) {
+      assert.isNotNull(error);
+      assert.isObject(client.socketEvent);
+      assert.strictEqual(client.socketEvent.namespace, client.config.sockets.defaultNamespace);
+      assert.strictEqual(client.socketEvent.eventType, "responseOnTest");
+    }
+  }
+});
+suite.addBatch({
+  "confirmNoMatchingEmit with ignored event": {
+    topic: function () {
+      client.action({
+        type: "emit",
+        args: ["test"]
+      }, function () {
+        // Ignore this callback.
+      });
+      client.action({
+        type: "confirmNoMatchingEmit",
+        eventType: "responseOnTest",
+        match: function () {
+          // Ignore all events.
+          return false;
+        }
+      }, this.callback);
+    },
+    "event emitted but ignored": function (error, eventData) {
+      assert.isNull(error);
+      assert.isUndefined(eventData);
+    }
+  }
+});
+
 exports.suite = suite;

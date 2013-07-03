@@ -400,3 +400,35 @@ The following actions are available.
         "reconnect": true
       }
     }, function (error, socketEvent) {});
+
+11) confirmNoMatchingEmit
+
+    // Wait to ensure that no event of the specified type is fired for
+    // the duration of the timeout. Only take notice of events that are
+    // matched by the provided match function.
+    client.action({
+      type: "confirmNoEmit",
+      // An optional connection namespace.
+      namespace: "/namespace"
+      // The event type.
+      eventType: "someEvent",
+      // Optional timeout in milliseconds. This can be a function.
+      timeout: 500
+      // The match function is passed the same arguments as a listener. If it
+      // returns true then the event is noticed, otherwise it is skipped.
+      match: function (eventType, eventData ... ) { return true; }
+    }, function (error, socketEvent) {});
+
+12) confirmNoEmit
+
+    // Wait to ensure that no event of the specified type is fired for
+    // the duration of the timeout.
+    client.action({
+      type: "confirmNoEmit",
+      // An optional connection namespace.
+      namespace: "/namespace"
+      // The event type.
+      eventType: "someEvent",
+      // Optional timeout in milliseconds. This can be a function.
+      timeout: 500
+    }, function (error, socketEvent) {});

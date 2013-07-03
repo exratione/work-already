@@ -173,9 +173,13 @@ exports.setupSocketResponses = function (socketFactory, namespaces) {
         });
       }, 100);
 
-      // Set up an echo.
+      // Set up a delayed echo.
       socket.on("test", function (data) {
-        socket.emit("responseOnTest", data);
+        setTimeout(function () {
+          socket.emit("responseOnTest", {
+            data: "responseOnTest"
+          });
+        }, 200);
       });
     });
   });

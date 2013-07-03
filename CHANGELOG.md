@@ -1,6 +1,11 @@
 Changelog
 =========
 
+Work in Progress
+----------------
+
+  * Added confirmNoEmit and confirmNoMatching emit actions.
+
 v0.0.2 - 04/11/2013
 -------------------
 
