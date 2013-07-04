@@ -185,4 +185,35 @@ suite.addBatch({
   }
 });
 
+
+// Refetch the index page.
+suite.addBatch({
+  "get shortcut": {
+    topic: function () {
+      client.action("/index.html", this.callback);
+    },
+    "page fetched": checkIndexPage
+  }
+});
+
+// Reconnect and test the combinated confirm no matching event.
+suite.addBatch({
+  "connectAndConfirmNoMatchingEmit with ignored event": {
+    topic: function () {
+      client.action({
+        type: "connectAndConfirmNoEmit",
+        eventType: "responseOnTest",
+        match: function () {
+          // Ignore all events.
+          return false;
+        }
+      }, this.callback);
+    },
+    "event not emitted": function (error, eventData) {
+      assert.isNull(error);
+      assert.isUndefined(eventData);
+    }
+  }
+});
+
 exports.suite = suite;

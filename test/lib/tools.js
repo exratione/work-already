@@ -186,6 +186,23 @@ exports.setupSocketResponses = function (socketFactory, namespaces) {
 };
 
 /**
+ * Set up the server Socket.IO such that it sends no responses.
+ *
+ * @param {object} socketFactory
+ *   The Socket.IO instance.
+ * @param {array} namespaces
+ *   Namespace strings.
+ */
+exports.setupUnresponsiveSocket = function (socketFactory, namespaces) {
+  namespaces = namespaces || [exports.config.workAlreadyClient.sockets.defaultNamespace];
+  namespaces.forEach(function (namespace, index, array) {
+    socketFactory.of(namespace).on("connection", function (socket) {
+      console.log("Connection: " + socket.id);
+    });
+  });
+};
+
+/**
  * Obtain a Vows test suite which launches and sets up a server.
  *
  * @return {object}
@@ -211,3 +228,32 @@ exports.serverTestSuite = function (name) {
 
   return suite;
 };
+
+/**
+ * Obtain a Vows test suite which launches and sets up an unresponsive server.
+ * The same as the other test server, but sends down no events to the client.
+ *
+ * @return {object}
+ *   A Vows test suite that launches a server as the first batch.
+ */
+exports.unresponsiveServerTestSuite = function (name) {
+  var suite = vows.describe(name);
+  suite.addBatch({
+    "Launch test server": {
+      topic: function () {
+        var data = exports.launchApp();
+        exports.setupExpressRoutes(data.app);
+        exports.setupUnresponsiveSocket(data.socketFactory);
+        return data;
+      },
+      "launch complete": function (data) {
+        suite.app = data.app;
+        suite.server = data.server;
+        suite.socketFactory = data.socketFactory;
+      }
+    }
+  });
+
+  return suite;
+};
+

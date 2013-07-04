@@ -381,7 +381,39 @@ The following actions are available.
       timeout: 2000
     }, function (error, socketEvent) {});
 
-10) connectAndAwaitEmit
+10) confirmNoMatchingEmit
+
+    // Wait to ensure that no event of the specified type is fired for
+    // the duration of the timeout. Only take notice of events that are
+    // matched by the provided match function.
+    client.action({
+      type: "confirmNoEmit",
+      // An optional connection namespace.
+      namespace: "/namespace"
+      // The event type.
+      eventType: "someEvent",
+      // Optional timeout in milliseconds. This can be a function.
+      timeout: 500
+      // The match function is passed the same arguments as a listener. If it
+      // returns true then the event is noticed, otherwise it is skipped.
+      match: function (eventType, eventData ... ) { return true; }
+    }, function (error, socketEvent) {});
+
+11) confirmNoEmit
+
+    // Wait to ensure that no event of the specified type is fired for
+    // the duration of the timeout.
+    client.action({
+      type: "confirmNoEmit",
+      // An optional connection namespace.
+      namespace: "/namespace"
+      // The event type.
+      eventType: "someEvent",
+      // Optional timeout in milliseconds. This can be a function.
+      timeout: 500
+    }, function (error, socketEvent) {});
+
+12) connectAndAwaitEmit
 
     // If the server emits immediately on connection, this is the way to catch
     // that event. It is stored to client.socketEvent.
@@ -401,34 +433,46 @@ The following actions are available.
       }
     }, function (error, socketEvent) {});
 
-11) confirmNoMatchingEmit
+13) connectAndConfirmNoMatchingEmit
 
-    // Wait to ensure that no event of the specified type is fired for
-    // the duration of the timeout. Only take notice of events that are
-    // matched by the provided match function.
+    // Connect and check to ensure that no event of a specific type is emitted
+    // within the timeout period. The match function can be used to further
+    // winnow down which events count.
     client.action({
-      type: "confirmNoEmit",
+      type: "connectAndConfirmNoMatchingEmit",
       // An optional connection namespace.
       namespace: "/namespace"
       // The event type.
       eventType: "someEvent",
       // Optional timeout in milliseconds. This can be a function.
-      timeout: 500
+      connectTimeout: 500,
+      // Optional timeout in milliseconds. This can be a function.
+      confirmNoEmitTimeout: 500,
       // The match function is passed the same arguments as a listener. If it
       // returns true then the event is noticed, otherwise it is skipped.
       match: function (eventType, eventData ... ) { return true; }
+      // Optional client socket configuration.
+      socketConfig: {
+        "reconnect": true
+      }
     }, function (error, socketEvent) {});
 
-12) confirmNoEmit
+14) connectAndConfirmNoEmit
 
-    // Wait to ensure that no event of the specified type is fired for
-    // the duration of the timeout.
+    // Connect and check to ensure that no event of a specific type is emitted
+    // within the timeout period.
     client.action({
-      type: "confirmNoEmit",
+      type: "connectAndConfirmNoEmit",
       // An optional connection namespace.
       namespace: "/namespace"
       // The event type.
       eventType: "someEvent",
       // Optional timeout in milliseconds. This can be a function.
-      timeout: 500
+      connectTimeout: 500,
+      // Optional timeout in milliseconds. This can be a function.
+      confirmNoEmitTimeout: 500,
+      // Optional client socket configuration.
+      socketConfig: {
+        "reconnect": true
+      }
     }, function (error, socketEvent) {});

@@ -4,7 +4,7 @@ Changelog
 v0.0.3 - 07/03/2013
 -------------------
 
-  * Added confirmNoEmit and confirmNoMatching emit actions.
+  * Added tests that confirm no event was emitted.
 
 v0.0.2 - 04/11/2013
 -------------------
